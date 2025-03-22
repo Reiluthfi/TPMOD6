@@ -11,7 +11,7 @@ class SayaTubeVideo
     {
         if (string.IsNullOrEmpty(title) || title.Length > 100)
         {
-            throw new ArgumentException("Judul video tidak boleh kosong atau lebih dari 100 karakter.");
+            throw new ArgumentException("Judul video tidak boleh kosong dan maksimal 100 karakter.");
         }
 
         Random random = new Random();
@@ -20,7 +20,7 @@ class SayaTubeVideo
         this.playCount = 0;
     }
 
-    // Method untuk menambah play count
+    // Method untuk menambah play count dengan Design by Contract
     public void IncreasePlayCount(int count)
     {
         if (count < 0 || count > 10000000)
@@ -28,7 +28,17 @@ class SayaTubeVideo
             throw new ArgumentOutOfRangeException("Jumlah play count harus antara 0 dan 10 juta.");
         }
 
-        this.playCount += count;
+        try
+        {
+            checked // Memastikan tidak terjadi overflow
+            {
+                this.playCount += count;
+            }
+        }
+        catch (OverflowException)
+        {
+            Console.WriteLine("Terjadi overflow saat menambah play count!");
+        }
     }
 
     // Method untuk menampilkan detail video
@@ -46,7 +56,13 @@ class Program
     static void Main()
     {
         SayaTubeVideo video = new SayaTubeVideo("Tutorial Design By Contract – [Reiluthfi Shidqi Wienarya]");
-        video.IncreasePlayCount(500);
+
+        // Menguji exception handling dengan loop for
+        for (int i = 0; i < 10; i++)
+        {
+            video.IncreasePlayCount(10000000); // 10 juta per iterasi
+        }
+
         video.PrintVideoDetails();
     }
 }
